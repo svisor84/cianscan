@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% from 'macro.html' import paginator, positions %}
+
+{% block title %}Объекты{% endblock %}
+
+{% block container %}
+<div class="row">
+	<div class="col mt-4">
+		<h1 class="float-md-left">Объекты на контроле</h1>
+		{{ paginator(broker_offers, uri, 'float-md-right') }}
+
+		<table class="table table-hover">
+			<thead class="thead-light">
+				<tr>
+					<th scope="col">ID</th>
+					<th scope="col">Ссылка</th>
+					<th scope="col">Цена, руб.</th>
+					<th scope="col">Адрес</th>
+					<th scope="col">Позиции</th>
+					<th scope="col"></th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in broker_offers %}
+				<tr id="offer-{{ item.cian_id }}">
+					<td><a href="/offer/{{ item.id }}/">{{ item.cian_id }}</a></td>
+					{% if item.price %}
+						<td>
+							<a href="{{ item.url }}" target="_blank">
+								<img src="{{ item.image }}" style="max-height: 150px" />
+							</a>
+						</td>
+						<td>{{ item.fmt_price }}</td>
+						<td>{{ item.address }}</td>
+						<td>
+							{{ positions(item, offers_positions[item.id], filter_id_to_name_map) }}
+						</td>
+					{% else %}	
+						<td colspan="4"> Про этот объект пока нет данных</td>
+					{% endif %}
+					
+					<td>
+						<button class="{{item.id}}_c btn btn-warning btn-sm" onclick="OfferSetControl('offer_id={{ item.id }}&active=true'); $('.{{item.id}}_c').hide(); $('.{{item.id}}_nc').show()" style="display: none"><i class="fa fa-binoculars"> Под котроль</i></button>
+						<button class="{{item.id}}_nc btn btn-warning btn-sm" onclick="OfferSetControl('offer_id={{ item.id }}&active=false'); $('.{{item.id}}_nc').hide(); $('.{{item.id}}_c').show()"><i class="fa fa-bell-slash"> Снять с контоля</i></button>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+
+		<form method="POST">
+			<table class="table mb-3">
+				<tbody>
+					<tr>
+						<td>
+							<input type="text" name="url-new-1"  class="form-control" placeholder="URL" />
+						</td>
+						
+						<td>
+							<input type="text" name="url-new-2"  class="form-control" placeholder="URL" />
+						</td>
+						
+						<td>
+							<input type="text" name="url-new-3"  class="form-control" placeholder="URL" />
+						</td>
+						<td>
+							<button type="submit" class="btn btn-success"> <i class="fa fa-plus"> Добавить объекты</i></button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			{% csrf_token %}
+		</form>
+
+	</div>
+</div>
+{% endblock %}

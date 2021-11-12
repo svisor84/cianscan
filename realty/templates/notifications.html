@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% from 'macro.html' import paginator %}
+
+{% block title %}Оповещения{% endblock %}
+
+{% block container %}
+	<div class="row">
+		<div class="col-8 mt-4">
+			<h1 class="float-md-left">Оповещения</h1>
+			{{ paginator(notifications, uri, 'float-md-right') }}
+
+			<table class="table table-hover mt-2">
+				<thead class="thead-light">
+					<tr>
+						<th scope="col"></th>
+						<th scope="col">Дата</th>
+						<th scope="col">Фильтр</th>
+						<th scope="col">Сообщение</th>
+					</tr>
+				</thead>
+				<tbody>
+
+					{% for item in notifications %}
+					<tr>
+						<th><i class="text-primary fa fa-circle{% if item.is_viewed %}-o{% endif %}"></i></th>
+						<td>{{ item.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+						<td>
+							{% if item.offers_filter_id %}
+								{% set ordering = item.filter_ordering %}
+								{% if ordering %}
+									<a href="/serp/{{item.offers_filter_id }}/?type={{ ordering }}">{{ filter_id_to_name_map[item.offers_filter_id] }}</a>	
+								{% else %}
+									<a href="/serp/{{item.offers_filter_id }}/">{{ filter_id_to_name_map[item.offers_filter_id] }}</a>	
+								{% endif %}							
+							{% endif %}
+						</td>
+						<td>{{ item.fmt_message|safe }}</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+
+			<a href="{{ update_querystring(uri, mark_viewed='t') }}" class="btn btn-warning mb-3"><i class="fa fa-circle-o"></i> Пометить все как прочитанные</a>
+		</div>
+
+		<div class="col-4 mt-4">
+			<form method="GET"> 
+				<div class="form-group">
+				    <select data-placeholder="Оповещения" class="chosen-select form-control col-sm-12"  name="type" multiple>
+				      {% for item in filters_types %}
+				      	<option value="{{ item[0] }}" {% if item[0] in selected_types %}selected="selected"{% endif %}>{{ item[1] }}</option>
+				      {% endfor %}
+				    </select>
+				</div>
+				<div class="form-group">
+					<select data-placeholder="Фильтры" class="chosen-select form-control col-sm-12"  name="filter" multiple>
+				      {% for item in filters_filters %}
+				      	<option value="{{ item }}" {% if item in selected_filters %}selected="selected"{% endif %}>{{ filter_id_to_name_map[item] }}</option>
+				      {% endfor %}
+				    </select>
+				</div>
+				<div class="form-group">
+				    <select class="form-control " name="dates">
+				      	<option value="day" {% if selected_dates == "day" %}selected="selected"{% endif %}>Последние сутки</option>
+				      	<option value="week" {% if selected_dates == "week" %}selected="selected"{% endif %}>Последняя неделя</option>
+				      	<option value="" {% if selected_dates == "" %}selected="selected"{% endif %}>Всё время</option>
+				    </select>
+				</div>
+
+				<div class="form-group">
+					<input type="checkbox" name="only_new" id='only_new' /> 
+					<label for='only_new' class="form-check-label">Только новые</label>
+				</div>
+
+				<button type="submit" class="btn btn-primary"><i class="fa fa-filter"></i> Показать</button>
+			</form>
+		</div>
+	</div>
+{% endblock %}

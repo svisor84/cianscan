@@ -1,0 +1,16 @@
+uwsgi:
+    socket: /var/tmp/realty_uwsgi.sock
+    pythonpath: /home/stnslv/realty
+    env: DJANGO_SETTINGS_MODULE=realty.settings
+    module: realty.wsgi
+    daemonize: /home/stnslv/realty/logs/uwsgi.log
+    max-requests: 5000
+    buffer-size: 32768
+    harakiri: 30
+    reload-mercy: 8
+    master: 1
+    no-orphans: 1
+    touch-reload: /home/stnslv/realty/uwsgi
+    vacuum: True
+    workers: 8
+

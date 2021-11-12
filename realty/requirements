@@ -1,0 +1,7 @@
+selenium==3.8.0
+Django==3.2.9
+django_admin_tools==0.8
+jinja2==2.9.6
+django-jinja==2.9.1
+requests==2.18
+pytils==0.3

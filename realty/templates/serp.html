@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% from 'macro.html' import paginator %}
+
+{% block title %}Объекты по фильтру{% endblock %}
+
+{% block container %}
+
+<div class="row">
+	<div class="col mt-4">
+		{% if broker_filter %}
+			<h1>{{ broker_filter.name }}</h1>	
+		{% else %}
+			<h3 style="overflow: hidden">{{ offer_filter.url }}</h3>
+		{% endif %}
+		
+		<h4><a href="{{ offer_filter.url|safe }}" target="_blank"> Смотреть на cian &rarr;</a></h4>
+		{% if not offers_positions %}
+			<p>По данному фильтру пока не найдено ни одного объекта. {{ offer_filter.update_status_html|safe }}</p>
+		{% endif %}
+	</div>
+	<div class="col mt-4">
+		<h6 class="text-right align-text-bottom align-bottom">{{ offer_filter.update_status_html|safe }}</h6>
+		<form method="GET" class="form-inline float-right"> 
+			<div class="form-group">
+			    <select class="form-control" name="type">
+			      {% for item in order_types %}
+			      	<option value="{{ item[0] }}" {% if selected_type == item[0] %}selected="selected"{% endif %}>{{ item[1] }}</option>	
+			      {% endfor %}
+			    </select>
+			</div>
+			<button type="submit" class="btn btn-info"><i class="fa fa-sort"></i></button>
+		</form>
+		{{ paginator(offers_positions, uri, 'float-md-right') }}
+	</div>
+	</div>
+	<div class="row">
+	{% if offers_positions %}
+		<div class="col">
+			<table class="table table-hover">
+				<thead class="thead-light">
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col">ID</th>
+						<th scope="col">Ссылка на cian</th>
+						<th scope="col">Цена, руб.</th>
+						<th scope="col">Адрес</th>
+						<th scope="col">Телефон</th>
+						<th scope="col">Дата добавления</th>
+						<th scope="col">Дата обновления</th>
+						<th scope="col">Дата изменения позиции</th>
+						<th scope="col"></th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for op in offers_positions %}
+					{% set item = op.offer %}
+					{% set phone = item.phone %}
+					<tr class="{% if item.id in broker_offer_ids %}table-primary{% endif %} {% if not op.position %}text-muted{% endif %}">
+						<td>
+							<p class="lead"> 
+								{% if op.position %}
+									{% if item.is_top %}
+										<span class="text-danger">ТОП</span><br>
+									{% endif %}
+									{{ op.position }} 
+								{% else %}	
+									&mdash;
+								{% endif %}
+							</p>
+							<p class='{{item.id}}_nc' {% if item.id not in offers_on_control %} style="display: none"{% endif %}><i class="fa fa-binoculars text-warning"> Контроль</i></p>
+							<p class='{{item.id}}_nm' {% if not item.is_moulage %} style="display: none"{% endif %}><i class="fa fa-bug"> Муля</i></p>
+						</td>
+						<td><a href="/offer/{{ item.id }}">{{ item.cian_id }}</a></td>
+						<td>
+							<a href="{{ item.url }}" target="_blank">
+								<img src="{{ item.image }}" style="max-height: {% if op.position %}150px{% else %}100px{% endif %}" />
+							</a>
+						</td>
+						<td>	
+							{% if item.prices.count() > 1 %}
+								<a href="accordion-{{ item.id }}" data-toggle="collapse" data-target="#accordion-{{ item.id }}">
+					      			{{ item.fmt_price }}
+					      		</a>
+					      		<div id="accordion-{{ item.id }}" class="collapse">
+				      				<ul>
+					      			{% for price in item.prices.all().order_by('created_at') %}
+					      				<li>{{ price.created_at.strftime('%d.%m.%Y') }}: <b>{{ price.fmt_price }}</b></li>	
+					      			{% endfor %}
+					      			</ul>
+				      			</div>
+							{% else %}
+								{{ item.fmt_price }}
+							{% endif %}
+							
+						</td>
+						<td>{{ item.address }}</td>
+						<td>
+							{{ phone }} 
+							{{ phone.fmt_retailer|safe }}
+							<br /><a href="/phone_offers/{{ phone.phone }}/">Все объекты &rarr;</a>
+							
+						</td>
+						<td>
+							{{ item.created_at.strftime('%d.%m.%Y') }}
+						</td>
+						<td>
+							{{ offer_filter.offer_position_changed(item.id).strftime('%d.%m.%Y') }}
+						</td>
+						<td>
+							{% if op.position %}
+								{% if item.updated_at > op.updated_at %}
+									{{ item.updated_at.strftime('%d.%m.%Y') }}	
+								{% else %}
+									{{ op.updated_at.strftime('%d.%m.%Y') }}	
+								{% endif %}
+							{% else %}
+								{{ offer_filter.offer_position_changed(item.id).strftime('%d.%m.%Y') }}
+							{% endif %}
+						</td>
+						<td>
+							{% if item.id not in broker_offer_ids and op.position %}
+								<button class="{{item.id}}_c btn btn-warning btn-sm" onclick="OfferSetControl('offer_id={{ item.id }}&active=true'); $('.{{item.id}}_c').hide(); $('.{{item.id}}_nc').show()" {% if item.id in offers_on_control %} style="display: none"{% endif %}><i class="fa fa-binoculars"> Под котроль</i></button>
+								<button class="{{item.id}}_nc btn btn-warning btn-sm" onclick="OfferSetControl('offer_id={{ item.id }}&active=false'); $('.{{item.id}}_nc').hide(); $('.{{item.id}}_c').show()" {% if item.id not in offers_on_control %} style="display: none"{% endif %}><i class="fa fa-bell-slash"> Снять с контоля</i></button>
+								<br />
+							{% endif %}
+							
+							{% if op.position %}
+								<button class="{{item.id}}_m btn btn-secondary btn-sm" onclick="OfferSetMoulage('offer_id={{ item.id }}&is_moulage=true'); $('.{{item.id}}_m').hide(); $('.{{item.id}}_nm').show()" {% if item.is_moulage %} style="display: none"{% endif %}><i class="fa fa-bug"> Это муля</i></button>
+								<button class="{{item.id}}_nm btn btn-secondary btn-sm" onclick="OfferSetMoulage('offer_id={{ item.id }}&is_moulage=false'); $('.{{item.id}}_m').show(); $('.{{item.id}}_nm').hide()" {% if not item.is_moulage %} style="display: none"{% endif %}><i class="fa fa-times"> Это НЕ муля</i></a>	
+							{% endif %}
+							
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	{% endif %}
+
+</div>
+{% endblock %}

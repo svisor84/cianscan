@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block container %}
+	
+<div class="row">
+	<div class="col mt-4">
+		<table class="table table-hover">
+		  <thead class="thead-light">
+		    <tr>
+		      <th scope="col">Фильтр</th>
+		      <th scope="col">Всего</th>
+		      <th scope="col">На контроле</th>
+		      <th scope="col">Наша макс. ставка</th>
+		      <th scope="col">Ваши Позиции</th>
+		      <th scope="col">Диапазон цен (руб)</th>
+		      <th scope="col">Макс. ставка</th>
+		      <th scope="col">Уведомления</th>
+		      <th scope="col">Статус</th>
+		    </tr>
+		  </thead>
+		  <tbody>
+		  	{% for item in broker_filters %}
+		  		{% set offers_filter = item.filter %}
+		  		<tr>
+			      <td>
+			      	<a href='/serp/{{ offers_filter.id }}/' class="fa fa-search-plus text-primary"> {{ item.name }}</a>
+			      </td>
+			      <td>{{ offers_filter.offers_count|default('', True) }}</td>
+			      <td>{{ item.control_offers_count }}</td>
+			      <td>{{ offers_filter.our_max_auction_bet|default('', True) }}</td>
+			      <td>{{ broker_positions[offers_filter.id] }}</td>
+			      <td>{{ offers_filter.fmt_price }}</td>
+			      <td>{{ offers_filter.max_auction_bet|default('', True) }}</td>
+			      <td>
+			      	{% if filters_notifications[item.id][0] %}
+			      		<a href="/notifications/?filter={{ item.filter.id }}">
+			      		{{ filters_notifications[item.id][0] }}
+			      		{% if filters_notifications[item.id][1] %}
+			      			<span class="font-weight-bold">({{ filters_notifications[item.id][1] }})</span>
+			      		{% endif %}
+			      		</a>
+			      	{% else %}
+			      		-
+			      	{% endif %}
+			      </td>
+			      <td>{{ offers_filter.update_status_html|safe }}</td>
+			    </tr>
+		  	{% endfor %}
+		   
+		  </tbody>
+		</table>
+		<a href='/filters/' class="btn btn-dark"><i class="fa fa-pencil"></i> Редактирование фильтров</a>
+	</div>
+</div>
+	
+{% endblock %}

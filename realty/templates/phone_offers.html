@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Объекты {{ phone }}{% endblock %}
+
+{% block container %}
+<div class="row">
+	<div class="col mt-4">
+		<h1>Объекты {{ phone }}</h1>
+
+		{% if offers %}
+			<table class="table table-hover">
+				<thead class="thead-light">
+					<tr>
+						<th scope="col">ID</th>
+						<th scope="col">Ссылка</th>
+						<th scope="col">Цена, руб.</th>
+						<th scope="col">Адрес</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for item in offers %}
+					<tr id="offer-{{ item.cian_id }}">
+						<td><a href="/offer/{{ item.id }}/">{{ item.cian_id }}</a></td>
+						<td>
+							<a href="{{ item.url }}" target="_blank">
+								<img src="{{ item.image }}" style="max-height: 150px" />
+							</a>
+						</td>
+						<td>{{ item.fmt_price }}</td>
+						<td>{{ item.address }}</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		{% else %}
+			<p>По данному телефону объектов не найдено</p>
+		{% endif %}
+
+		
+	</div>
+</div>
+{% endblock %}

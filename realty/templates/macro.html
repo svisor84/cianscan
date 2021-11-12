@@ -1,0 +1,73 @@
+{% macro paginator(items, uri, classes='') %}
+	{% if items.has_other_pages() %}
+      	<ul class="pagination {{ classes }}">
+      		{% if items.has_previous() %} 
+				<li class="page-item ">
+			      <a class="page-link" href="{{ url_for_other_page(uri,  items.previous_page_number()) }}" aria-label="Previous">
+			        <span aria-hidden="true">&laquo;</span>
+			        <span class="sr-only">Предыдущая</span>
+			      </a>
+			    </li>
+			{% endif %}
+
+			{% if items.number > 5 %}
+				<li class="page-item"><a class="page-link" href="{{ url_for_other_page(uri, 1) }}">1</a></li>
+				<li class="page-item"><a class="page-link" href="{{ url_for_other_page(uri, 2) }}">2</a></li>
+				<li class="page-item disabled">&nbsp;...&nbsp;</li>
+				{% for p in range(items.number - 2, items.number) %}
+					<li class="page-item"><a class="page-link" href="{{ url_for_other_page(uri, p) }}">{{ p }}</a></li>
+					</li>
+				{% endfor %}		
+			{% else %}		
+				{% for p in range(1, items.number) %}
+					<li class="page-item"><a class="page-link" href="{{ url_for_other_page(uri, p) }}">{{ p }}</a></li>
+					</li>
+				{% endfor %}		
+			{% endif %}
+
+			<li class="page-item active"><a class="page-link" href="{{ url_for_other_page(uri, p) }}">{{ items.number }}</a></li>
+			
+			{% if items.paginator.num_pages - items.number > 5 %}
+				{% for p in range(items.number + 1, items.number + 3) %}
+					<li class="page-item {% if p == items.number %}active{% endif %}"><a class="page-link" href="{{ url_for_other_page(uri, p) }}">{{ p }}</a></li>
+					</li>
+				{% endfor %}		
+				<li class="page-item disabled">&nbsp;...&nbsp;</li>
+				<li class="page-item"><a class="page-link" href="{{ url_for_other_page(uri, items.paginator.num_pages - 1) }}">{{ items.paginator.num_pages - 1 }}</a></li>
+				<li class="page-item"><a class="page-link" href="{{ url_for_other_page(uri, items.paginator.num_pages) }}">{{ items.paginator.num_pages }}</a></li>
+				
+			{% else %}		
+				{% for p in range(items.number + 1, items.paginator.num_pages) %}
+					<li class="page-item"><a class="page-link" href="{{ url_for_other_page(uri, p) }}">{{ p }}</a></li>
+					</li>
+				{% endfor %}		
+			{% endif %}
+						
+			{% if items.has_next() %}
+				<li class="page-item">
+			      <a class="page-link" href="{{ url_for_other_page(uri, items.next_page_number()) }}" aria-label="Next">
+			        <span aria-hidden="true">&raquo;</span>
+			        <span class="sr-only">Следующая</span>
+			      </a>
+			    </li>
+			{% endif %}
+		</ul>
+	{% endif %}
+{% endmacro %}
+
+{% macro positions(item, offer_positions, filter_id_to_name_map) %}
+	{% for filter_id, position in offer_positions.iteritems() %}
+		{% if position %}
+			{% if item.is_top %}
+				В топе 
+			{% else %}
+				#{{ position }}:
+			{% endif %}
+			<a href="/serp/{{ filter_id }}">{{ filter_id_to_name_map[filter_id] }}</a>	
+		{% else %}
+			Вышел из <b>{{ filter_id_to_name_map[filter_id] }}</b>
+		{% endif %}
+		<br />
+
+	{% endfor %}
+{% endmacro %}

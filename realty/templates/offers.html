@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% from 'macro.html' import paginator, positions %}
+
+{% block title %}Объекты{% endblock %}
+
+{% block container %}
+<div class="row">
+	<div class="col mt-4">
+		<h1 class="float-md-left">Мои Объекты</h1>
+		{{ paginator(broker_offers, uri, 'float-md-right') }}
+
+		<table class="table table-hover">
+			<thead class="thead-light">
+				<tr>
+					<th scope="col">ID</th>
+					<th scope="col">Ссылка</th>
+					<th scope="col">Цена, руб.</th>
+					<th scope="col">Адрес</th>
+					<th scope="col">Позиции</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in broker_offers %}
+					{% if offers_positions[item.id] %}
+						<tr id="offer-{{ item.cian_id }}">
+							<td><a href="/offer/{{ item.id }}/">{{ item.cian_id }}</a></td>
+							<td>
+								<a href="{{ item.url }}" target="_blank">
+									<img src="{{ item.image }}" style="max-height: 150px" />
+								</a>
+							</td>
+							<td>{{ item.fmt_price }}</td>
+							<td>{{ item.address }}</td>
+							<td>
+								{{ positions(item, offers_positions[item.id], filter_id_to_name_map) }}
+							</td>
+
+						</tr>
+					{% endif %}
+				
+				{% endfor %}
+			</tbody>
+		</table>
+
+		<p class="mb-3">
+			Объекты автоматически определяются по вашему телефону: 
+			{% if can_change_phone %}
+				{% if phone_error %}
+					<div class="text-danger">{{ phone_error }}</div>
+				{% endif %}
+				<form method="POST" class="form-inline"> 
+					<input type="text" name="broker_phone" value="{{ broker.phone }}"  class="form-control {% if phone_error %}is-invalid{% endif %}" placeholder="Введите телефон в формате 71111111111" />
+					<button type="submit" class="btn btn-info">Изменить</button>
+					{% csrf_token %}
+					<small class="form-text text-muted">&nbsp;&nbsp; Телефон вы можете изменить только до тех пор, пока у вас нет ни одного объекта.</small>
+				</form>
+			{% else %}	
+				{{ broker.phone }}
+			{% endif %}
+		</p>
+	</div>
+</div>
+{% endblock %}

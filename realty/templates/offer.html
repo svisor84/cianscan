@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Объект # {{ item.cian_id }}{% endblock %}
+
+{% block container %}
+
+<div class="row">
+	<div class="col mt-4">
+		<h1>
+			{% if is_mine %}Мой {% endif %}Объект 
+			{{ item.cian_id }}
+			{% if item.is_top and offer_positions[item.id] %}
+				<span class="text-danger">TOП</span>
+			{% endif %}
+			<small class='{{item.id}}_nc' {% if not on_control or is_mine %} style="display: none"{% endif %}>
+				<i class="fa fa-binoculars"> </i>
+			</small>
+			<small class='{{item.id}}_nm' {% if not item.is_moulage %} style="display: none"{% endif %}><i class="fa fa-bug"> </i></small>
+		</h1>
+	</div>
+</div>
+{% set phone = item.phone %}
+
+<div class="row">
+
+	<div class="col">
+		<div class="row">
+			<div class="col">
+				<a href="{{ item.url }}" target="_blank">
+					<img src="{{ item.image }}"/>
+				</a>
+				<a href="{{ item.url|safe }}" target="_blank"> Смотреть на cian &rarr;</a>
+			</div>
+			<div class="col">
+				{% if not is_mine %}
+					<button class="{{item.id}}_c btn btn-warning btn-sm" onclick="OfferSetControl('offer_id={{ item.id }}&active=true'); $('.{{item.id}}_c').hide(); $('.{{item.id}}_nc').show()" {% if on_control %} style="display: none"{% endif %}><i class="fa fa-binoculars"> Под котроль</i></button>
+					<button class="{{item.id}}_nc btn btn-warning btn-sm" onclick="OfferSetControl('offer_id={{ item.id }}&active=false'); $('.{{item.id}}_nc').hide(); $('.{{item.id}}_c').show()" {% if not on_control %} style="display: none"{% endif %}><i class="fa fa-bell-slash"> Снять с контоля</i></button>
+					<br />
+				{% endif %}
+				
+				<button class="{{item.id}}_m btn btn-secondary btn-sm" onclick="OfferSetMoulage('offer_id={{ item.id }}&is_moulage=true'); $('.{{item.id}}_m').hide(); $('.{{item.id}}_nm').show()" {% if item.is_moulage %} style="display: none"{% endif %}><i class="fa fa-bug"> Это муля</i></button>
+				<button class="{{item.id}}_nm btn btn-secondary btn-sm" onclick="OfferSetMoulage('offer_id={{ item.id }}&is_moulage=false'); $('.{{item.id}}_m').show(); $('.{{item.id}}_nm').hide()" {% if not item.is_moulage %} style="display: none"{% endif %}><i class="fa fa-times"> Это НЕ муля</i></a>
+			</div>
+		</div>
+						
+		<table class="table table-hover">
+			<tbody>
+				<tr>
+					<th>Цена, руб.</th>
+					<td>{{ item.fmt_price }}</td>
+				</tr>
+				<tr>
+					<th>Адрес</th>
+					<td>{{ item.address }}</td>
+				</tr>
+				<tr>
+					<th>Телефон</th>
+					<td>
+						{{ phone }} 
+						{{ phone.fmt_retailer|safe }}
+						<br /><a href="/phone_offers/{{ phone.phone }}/">Все объекты &rarr;</a>
+						
+					</td>
+				</tr>
+				<tr>
+					<th>Дата обновления на cian</th>
+					<td>{{ item.edited.strftime('%d.%m.%Y') }}</td>
+				</tr>
+				<tr>
+					<th>Дата добавления в базу</th>
+					<td>{{ item.created_at.strftime('%d.%m.%Y') }}</td>
+				</tr>
+				<tr>
+					<th>Тип объявления</th>
+					<td>
+						{% if item.is_paid %}Платное{% else %}Не платное{% endif %};
+						{% if item.is_premium %}Преимум{% else %}Не премиум{% endif %};
+						{% if item.is_top %}ТОП-3 {% endif %}
+					</td>
+				</tr>
+				<tr>
+					<th>Описание</th>
+					<td>{{ item.description }}</td>
+				</tr>
+			</tbody>
+		</table>
+
+		{% if item.prices.count() > 1 %}
+			<h3>История цены</h3>
+			<table class="table table-hover">
+				<tbody>
+					{% for price in item.prices.all().order_by('created_at') %}
+						<tr>
+							<td>{{ price.created_at.strftime('%d.%m.%Y') }}</td>
+							<td>{{ price.fmt_price }}</td>
+						</tr>
+	      			{% endfor %}
+				</tbody>
+			</table>
+	
+		{% endif %}
+
+		<h3>Атрибуты</h3>
+		<table class="table table-hover">
+		{% for attr in item.attributes.all() %}
+			<tr>
+				<th>{{ attr.key }}</th>
+		  		<td>{{ attr.value }}</td>		
+			</tr>
+			
+		{% endfor %}
+		
+		</table>
+		
+	</div>
+
+	<div class="col">
+		{% if offer_positions[item.id] %}
+			<h3>Позиции</h3>
+			<table class="table table-hover">
+				<thead class="thead-light">
+					<tr>
+						<th scope="col">Фильтр</th>
+						<th scope="col">Позиция</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for filter_id, position in offer_positions[item.id].iteritems() %}
+					<tr>
+						<td><a href="/serp/{{ filter_id }}">{{ filter_id_to_name_map[filter_id] }}</a></td>
+						<td>
+							{% if item.is_top %}
+								ТОП
+							{% else %}
+								{{ position }}
+							{% endif %}
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		{% else %}
+			Объект не встречается в ваших фильтрах.
+		{% endif %}		
+	</div>
+</div>
+{% endblock %}

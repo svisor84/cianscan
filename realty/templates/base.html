@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{% block title %}{% endblock %}</title>
+  <link href="../static/bootstrap/css/bootstrap_yeti.css" rel="stylesheet"></head>
+  <link href="../static/font-awesome/css/font-awesome.min.css" rel="stylesheet"></head>
+  <link href="../static/chosen.css" rel="stylesheet"></head>
+
+<body>
+
+  <nav class="navbar navbar-expand-md fixed-top navbar-dark bg-primary">
+    <a class="navbar-brand" href="/"><img src=""></a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item {% if self.path == '/' %} active{% endif %}">
+          <a class="nav-link" href="/">
+            Главная
+          </a>
+        </li>
+        <li class="nav-item {% if self.path == '/filters/' %} active{% endif %}">
+          <a class="nav-link" href="/filters/">Фильтры</a>
+        </li>
+        <li class="nav-item {% if self.path == '/offers/' %} active{% endif %}">
+          <a class="nav-link" href="/offers/">Мои Объекты</a>
+        </li>
+        <li class="nav-item {% if self.path == '/control/' %} active{% endif %}">
+          <a class="nav-link" href="/control/">Объекты на Контроле</a>
+        </li>
+        <li class="nav-item {% if self.path == '/retailers/' %} active{% endif %}">
+          <a class="nav-link" href="/retailers/">Все Агенты</a>
+        </li>
+
+        <li class="nav-item {% if self.path == '/notifications/' %} active{% endif %}">
+          <a class="nav-link" href="/notifications/">Оповещения 
+          {% if notifications_count %}
+              <span class="badge badge-pill badge-secondary">{{ notifications_count }}</span>
+          {% endif %}
+          </a>
+        </li>
+        
+      </ul>
+
+      <ul class="nav navbar-nav ml-auto">
+        <li class="nav-item {% if self.path == '/documentation/' %} active{% endif %}">
+          <a class="nav-link" href="/documentation/">Документация</a>
+        </li>
+        <li class="nav-item {% if self.path == '/password_change/' %} active{% endif %}">
+          <a class="nav-link" href="/password_change/">Изменить пароль</a>
+        </li>
+        <li class="nav-item float-right">
+          <a class="nav-link" href="/logout/">
+          {% if broker %}
+            <span class="badge badge-dark">{{ broker }}</span>
+          {% endif %}
+          Выход
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <main role="main" class="container-fluid mt-5">
+    <div class="mt-3">&nbsp;</div>
+    {% block container %}
+    {% endblock %}
+  </main>
+  <!-- /.container -->
+
+  <nav class="navbar fixed-bottom ">
+
+  {#<div class="ml-auto">
+    <a class="text-success align-text-bottom align-bottom" href="http://rvrproject.ru/?utm_term=cianscan" target="_blank">Разработка: RVR Project <img src="/static/rvr.jpg"></a>
+  </div>#}
+        
+</nav>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+  <script type="text/javascript" src='../static/bootstrap/js/popper.min.js'></script>
+  <script type="text/javascript" src='../static/bootstrap/js/bootstrap.min.js'></script>
+  <script src="http://harvesthq.github.io/chosen/chosen.jquery.js"></script>
+  <script type="text/javascript">
+    function ViewedNotification(param) {
+      $.ajax({type: 'GET', url: '/ajax/notification_viewed/', data: param}); 
+      return false;
+    };
+
+    function OfferSetMoulage(param) {
+      $.ajax({type: 'GET', url: '/ajax/set_offer_moulage/', data: param}); 
+      return false;
+    };
+
+    function OfferSetControl(param) {
+      $.ajax({type: 'GET', url: '/ajax/set_on_control/', data: param}); 
+      return false;
+    };
+
+    $(document).ready(function () {
+        $('.chosen-select').chosen();
+        $('.chosen-select-deselect').chosen({ allow_single_deselect: true });
+    });
+
+  </script>
+
+</body>
+</html>

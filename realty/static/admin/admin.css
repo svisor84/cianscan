@@ -1,0 +1,32 @@
+#header {
+    background: #efefef;
+    color: #222;
+    background-size: cover;
+    height: 75px;
+}
+#header a{
+    color: #d33 !important;
+}
+
+#branding {
+    background: url("") no-repeat;
+    margin: 3px;
+    width: 170px;
+    height: 53px;
+}
+
+#user-tools {
+    min-height: 41px !important;
+}
+
+#site-name a {
+    display: none;
+}
+
+#user-tools {
+    margin-right: 50px;
+}
+
+.hidden_record a {
+    color: red;
+}
